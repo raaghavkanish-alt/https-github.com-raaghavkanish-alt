@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kanish Raaghav A — Physical Design Engineer</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e0f;
+    --bg2: #0f1518;
+    --bg3: #141c1f;
+    --border: #1f2d30;
+    --green: #00e5a0;
+    --green-dim: #00b87c;
+    --green-glow: rgba(0,229,160,0.12);
+    --amber: #f5a623;
+    --blue: #4fc3f7;
+    --text: #d4dde0;
+    --text-dim: #6b8088;
+    --text-bright: #eaf4f7;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Inter', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── FLOORPLAN CANVAS ── */
+  #floorplan-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    opacity: 0.07;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 48px;
+    background: rgba(10,14,15,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--green);
+    letter-spacing: 0.08em;
+  }
+  .nav-logo span { color: var(--text-dim); }
+  nav ul {
+    display: flex; gap: 36px; list-style: none;
+  }
+  nav ul a {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  nav ul a:hover { color: var(--green); }
+
+  /* ── HERO ── */
+  #hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex; align-items: center;
+    padding: 120px 48px 80px;
+    z-index: 1;
+  }
+  .hero-inner {
+    max-width: 800px;
+  }
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--green);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 24px; height: 1px;
+    background: var(--green);
+  }
+  h1 {
+    font-family: var(--mono);
+    font-size: clamp(36px, 6vw, 72px);
+    font-weight: 700;
+    color: var(--text-bright);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+  .hero-title-accent {
+    color: var(--green);
+  }
+  .hero-sub {
+    font-family: var(--mono);
+    font-size: clamp(14px, 2vw, 20px);
+    color: var(--text-dim);
+    font-weight: 300;
+    margin-bottom: 28px;
+    letter-spacing: 0.02em;
+  }
+  .hero-desc {
+    font-size: 16px;
+    color: var(--text);
+    max-width: 580px;
+    margin-bottom: 44px;
+    line-height: 1.8;
+  }
+  .hero-tags {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin-bottom: 44px;
+  }
+  .tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--green-dim);
+    border: 1px solid rgba(0,229,160,0.25);
+    padding: 5px 12px;
+    letter-spacing: 0.08em;
+    background: rgba(0,229,160,0.04);
+  }
+  .hero-cta {
+    display: flex; gap: 16px; flex-wrap: wrap;
+  }
+  .btn-primary {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: var(--green);
+    color: #000;
+    padding: 13px 28px;
+    text-decoration: none;
+    font-weight: 700;
+    transition: background 0.2s, box-shadow 0.2s;
+  }
+  .btn-primary:hover {
+    background: #00ffb3;
+    box-shadow: 0 0 24px rgba(0,229,160,0.4);
+  }
+  .btn-ghost {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 13px 28px;
+    text-decoration: none;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .btn-ghost:hover { border-color: var(--green); color: var(--green); }
+
+  /* ── STAT ROW ── */
+  .stat-row {
+    position: absolute;
+    right: 48px; top: 50%;
+    transform: translateY(-50%);
+    display: flex; flex-direction: column; gap: 32px;
+  }
+  .stat {
+    text-align: right;
+    border-right: 2px solid var(--green);
+    padding-right: 16px;
+  }
+  .stat-num {
+    font-family: var(--mono);
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-bright);
+    line-height: 1;
+  }
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    position: relative; z-index: 1;
+    padding: 100px 48px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .section-header {
+    display: flex; align-items: center; gap: 20px;
+    margin-bottom: 64px;
+  }
+  .section-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--green);
+    letter-spacing: 0.15em;
+  }
+  h2 {
+    font-family: var(--mono);
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text-bright);
+    letter-spacing: -0.01em;
+  }
+  .section-line {
+    flex: 1; height: 1px;
+    background: var(--border);
+  }
+
+  /* ── EXPERIENCE ── */
+  .exp-item {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    gap: 40px;
+    padding: 40px 0;
+    border-top: 1px solid var(--border);
+  }
+  .exp-meta {
+    padding-top: 4px;
+  }
+  .exp-date {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--green);
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+  }
+  .exp-company {
+    font-size: 13px;
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+  .exp-role {
+    font-family: var(--mono);
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-bright);
+    margin-bottom: 20px;
+  }
+  .exp-bullets {
+    list-style: none;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .exp-bullets li {
+    font-size: 14px;
+    color: var(--text);
+    padding-left: 20px;
+    position: relative;
+    line-height: 1.7;
+  }
+  .exp-bullets li::before {
+    content: '▸';
+    position: absolute; left: 0;
+    color: var(--green);
+    font-size: 11px;
+    top: 3px;
+  }
+
+  /* ── SKILL DOMAINS ── */
+  .domains-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    background: var(--border);
+  }
+  .domain-card {
+    background: var(--bg2);
+    padding: 36px 32px;
+    transition: background 0.2s;
+  }
+  .domain-card:hover { background: var(--bg3); }
+  .domain-icon {
+    font-family: var(--mono);
+    font-size: 28px;
+    color: var(--green);
+    margin-bottom: 16px;
+    line-height: 1;
+  }
+  .domain-title {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-bright);
+    margin-bottom: 16px;
+    letter-spacing: 0.02em;
+  }
+  .domain-skills {
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .skill-item {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .skill-item::before {
+    content: '';
+    width: 4px; height: 4px;
+    background: var(--green-dim);
+    flex-shrink: 0;
+  }
+
+  /* ── PROJECTS TABS ── */
+  .tabs {
+    display: flex; gap: 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+  .tab-btn {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 14px 28px;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .tab-btn.active {
+    color: var(--green);
+    border-bottom-color: var(--green);
+  }
+  .tab-btn:hover { color: var(--text-bright); }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2px;
+    background: var(--border);
+  }
+  .project-card {
+    background: var(--bg2);
+    padding: 32px;
+    transition: background 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .project-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--green);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s;
+  }
+  .project-card:hover::before { transform: scaleX(1); }
+  .project-card:hover { background: var(--bg3); }
+
+  .project-tech {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--green);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .project-title {
+    font-family: var(--mono);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-bright);
+    margin-bottom: 14px;
+    line-height: 1.3;
+  }
+  .project-desc {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+  .project-metrics {
+    display: flex; gap: 16px; flex-wrap: wrap;
+  }
+  .metric {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--amber);
+    background: rgba(245,166,35,0.08);
+    padding: 3px 10px;
+    border: 1px solid rgba(245,166,35,0.2);
+  }
+  .project-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--blue);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    margin-top: 16px;
+    transition: color 0.2s;
+  }
+  .project-link:hover { color: #fff; }
+  .project-link::after { content: ' →'; }
+
+  /* ── THESIS ── */
+  .thesis-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--green);
+    padding: 40px;
+  }
+  .thesis-badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    background: rgba(0,229,160,0.1);
+    color: var(--green);
+    border: 1px solid rgba(0,229,160,0.3);
+    padding: 4px 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .thesis-title {
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-bright);
+    margin-bottom: 24px;
+    line-height: 1.4;
+  }
+  .thesis-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 32px;
+  }
+  .thesis-metric {
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+  .thesis-metric-val {
+    font-family: var(--mono);
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--green);
+    margin-bottom: 4px;
+  }
+  .thesis-metric-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+  }
+
+  /* ── EDUCATION ── */
+  .edu-item {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    gap: 40px;
+    padding: 36px 0;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── CONTACT ── */
+  #contact {
+    border-top: 1px solid var(--border);
+    background: var(--bg2);
+    max-width: 100%;
+    padding: 100px 48px;
+  }
+  #contact .inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    margin-top: 64px;
+  }
+  .contact-info h3 {
+    font-family: var(--mono);
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-bright);
+    line-height: 1.2;
+    margin-bottom: 20px;
+  }
+  .contact-info h3 span { color: var(--green); }
+  .contact-links {
+    display: flex; flex-direction: column; gap: 16px;
+    margin-top: 36px;
+  }
+  .contact-link {
+    display: flex; align-items: center; gap: 14px;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .contact-link:hover { color: var(--green); }
+  .contact-link-icon {
+    width: 36px; height: 36px;
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .contact-link:hover .contact-link-icon {
+    border-color: var(--green);
+    background: var(--green-glow);
+  }
+  .flow-diagram {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 32px;
+  }
+  .flow-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+  .flow-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .flow-step {
+    display: flex; align-items: center; gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .flow-step:last-child { border-bottom: none; }
+  .flow-step-dot {
+    width: 8px; height: 8px;
+    background: var(--green);
+    flex-shrink: 0;
+  }
+  .flow-step-name {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text-bright);
+    flex: 1;
+  }
+  .flow-step-tool {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  .flow-arrow {
+    display: flex; align-items: center;
+    padding: 0 0 0 12px;
+  }
+  .flow-arrow::before {
+    content: '↓';
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--border);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 24px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative; z-index: 1;
+  }
+  footer p {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  footer p span { color: var(--green); }
+
+  /* ── SECTION DIVIDER ── */
+  .section-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 0;
+    position: relative; z-index: 1;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    nav { padding: 16px 20px; }
+    nav ul { display: none; }
+    #hero { padding: 100px 20px 60px; }
+    .stat-row { display: none; }
+    section { padding: 60px 20px; }
+    .domains-grid { grid-template-columns: 1fr; }
+    .projects-grid { grid-template-columns: 1fr; }
+    .exp-item { grid-template-columns: 1fr; gap: 12px; }
+    .edu-item { grid-template-columns: 1fr; gap: 12px; }
+    .thesis-grid { grid-template-columns: 1fr 1fr; }
+    .contact-grid { grid-template-columns: 1fr; gap: 40px; }
+    footer { flex-direction: column; gap: 8px; text-align: center; padding: 20px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ANIMATED FLOORPLAN BACKGROUND -->
+<canvas id="floorplan-canvas"></canvas>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">KR<span>_A</span> // RTL → GDSII</div>
+  <ul>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#thesis">Thesis</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero" style="max-width:100%; padding-top:0;">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Physical Design Engineer</div>
+    <h1>Kanish<br><span class="hero-title-accent">Raaghav</span> A</h1>
+    <div class="hero-sub">RTL → Synthesis → P&amp;R → DRC/LVS → GDSII</div>
+    <p class="hero-desc">Final-year ECE undergraduate at VIT Chennai with hands-on full-flow physical design experience on the SkyWater 130nm PDK using OpenLANE, OpenROAD, and Yosys. Grounded in multi-corner STA, CDC analysis, and production-quality sign-off.</p>
+    <div class="hero-tags">
+      <span class="tag">OpenLANE</span>
+      <span class="tag">OpenROAD</span>
+      <span class="tag">Yosys</span>
+      <span class="tag">Cadence Innovus</span>
+      <span class="tag">Sky130 PDK</span>
+      <span class="tag">OpenSTA</span>
+      <span class="tag">Magic / Netgen</span>
+      <span class="tag">Verilog</span>
+    </div>
+    <div class="hero-cta">
+      <a href="mailto:raaghavkanish@gmail.com" class="btn-primary">Get in Touch</a>
+      <a href="https://github.com/raaghavkanish-alt" target="_blank" class="btn-ghost">GitHub →</a>
+    </div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat">
+      <div class="stat-num">130<span style="font-size:18px;color:var(--green)">nm</span></div>
+      <div class="stat-label">SkyWater PDK</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">4+</div>
+      <div class="stat-label">RTL→GDS Tapeouts</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">0</div>
+      <div class="stat-label">DRC/LVS Violations</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">2×</div>
+      <div class="stat-label">MAC Speedup Target</div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <h2>Skill Domains</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="domains-grid">
+    <div class="domain-card">
+      <div class="domain-icon">⬛</div>
+      <div class="domain-title">Physical Design</div>
+      <div class="domain-skills">
+        <div class="skill-item">Floorplanning &amp; Power Planning</div>
+        <div class="skill-item">Placement &amp; CTS</div>
+        <div class="skill-item">Global &amp; Detailed Routing</div>
+        <div class="skill-item">Post-Route STA</div>
+        <div class="skill-item">DRC / LVS Sign-off</div>
+        <div class="skill-item">CDC Analysis</div>
+        <div class="skill-item">Multi-Corner Timing</div>
+      </div>
+    </div>
+    <div class="domain-card">
+      <div class="domain-icon">◧</div>
+      <div class="domain-title">Verilog / RTL</div>
+      <div class="domain-skills">
+        <div class="skill-item">RTL Design in Verilog</div>
+        <div class="skill-item">Testbench Development</div>
+        <div class="skill-item">Functional Verification</div>
+        <div class="skill-item">Waveform Analysis</div>
+        <div class="skill-item">Icarus Verilog / Verilator</div>
+        <div class="skill-item">SDC Constraint Writing</div>
+        <div class="skill-item">Gray-Code CDC Sync</div>
+      </div>
+    </div>
+    <div class="domain-card">
+      <div class="domain-icon">◈</div>
+      <div class="domain-title">Cadence / Virtuoso</div>
+      <div class="domain-skills">
+        <div class="skill-item">Cadence Virtuoso</div>
+        <div class="skill-item">Cadence Genus (Synthesis)</div>
+        <div class="skill-item">Cadence Innovus (P&amp;R)</div>
+        <div class="skill-item">Schematic &amp; Layout</div>
+        <div class="skill-item">PPA Metric Analysis</div>
+      </div>
+    </div>
+    <div class="domain-card">
+      <div class="domain-icon">⬡</div>
+      <div class="domain-title">Open-Source EDA</div>
+      <div class="domain-skills">
+        <div class="skill-item">Yosys — Logic Synthesis</div>
+        <div class="skill-item">OpenROAD — P&amp;R</div>
+        <div class="skill-item">OpenLANE — Full Flow</div>
+        <div class="skill-item">Magic — Layout / DRC</div>
+        <div class="skill-item">Netgen — LVS</div>
+        <div class="skill-item">OpenSTA — Timing Analysis</div>
+        <div class="skill-item">Graywolf / Qrouter</div>
+      </div>
+    </div>
+    <div class="domain-card">
+      <div class="domain-icon">◇</div>
+      <div class="domain-title">Scripting &amp; Programming</div>
+      <div class="domain-skills">
+        <div class="skill-item">Tcl — EDA Automation</div>
+        <div class="skill-item">Python</div>
+        <div class="skill-item">C / C++</div>
+        <div class="skill-item">MATLAB / Simulink</div>
+        <div class="skill-item">Linux Shell Scripting</div>
+      </div>
+    </div>
+    <div class="domain-card">
+      <div class="domain-icon">◻</div>
+      <div class="domain-title">Embedded &amp; Protocols</div>
+      <div class="domain-skills">
+        <div class="skill-item">STM32F4 / ARM Cortex-M</div>
+        <div class="skill-item">8051 / 8086</div>
+        <div class="skill-item">FreeRTOS</div>
+        <div class="skill-item">UART / SPI / I2C</div>
+        <div class="skill-item">Custom ISA Design</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <h2>Experience</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="exp-item">
+    <div class="exp-meta">
+      <div class="exp-date">May 2026 — Present</div>
+      <div class="exp-company">Silicon Craft VLSI<br>Training &amp; Research Institute</div>
+    </div>
+    <div>
+      <div class="exp-role">VLSI Design Trainee</div>
+      <ul class="exp-bullets">
+        <li>Designed and verified digital circuits (combinational, sequential) using Verilog HDL; developed simulation testbenches and performed functional verification with waveform analysis.</li>
+        <li>Performed STA using OpenSTA — critical path identification, setup/hold slack computation, clock uncertainty modeling, and timing violation debugging.</li>
+        <li>Logic synthesis with Yosys targeting the SkyWater 130nm open-source PDK; mapped RTL to gate-level netlists and resolved pre-layout setup/hold violations.</li>
+        <li>Executed full OpenLANE flow: floorplanning, power planning, placement, CTS — optimizing core utilization, power distribution, and post-CTS timing; analyzed skew and insertion delay.</li>
+        <li>Global and detailed routing followed by post-route STA for timing closure under real parasitics; completed DRC and LVS sign-off on SkyWater 130nm.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="exp-item">
+    <div class="exp-meta">
+      <div class="exp-date">May 2024 — Jun 2024</div>
+      <div class="exp-company">Maven Silicon</div>
+    </div>
+    <div>
+      <div class="exp-role">Physical Design Intern</div>
+      <ul class="exp-bullets">
+        <li>Executed full RTL-to-GDS2 flow for an SPI design: synthesis → P&amp;R → DRC/LVS → GDSII using open-source EDA tools.</li>
+        <li>Performed static timing analysis and timing closure; generated production-ready GDSII file.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <h2>Projects</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab(event,'verilog')">Verilog / RTL</button>
+    <button class="tab-btn" onclick="switchTab(event,'pd')">Physical Design</button>
+    <button class="tab-btn" onclick="switchTab(event,'virtuoso')">Cadence Suite</button>
+  </div>
+
+  <!-- Verilog Tab -->
+  <div class="tab-panel active" id="tab-verilog">
+    <div class="projects-grid">
+      <div class="project-card">
+        <div class="project-tech">Verilog · OpenSTA · Sky130</div>
+        <div class="project-title">8-bit Async FIFO</div>
+        <p class="project-desc">8-bit 16-deep asynchronous FIFO with Gray-code pointer synchronization; verified full/empty flags, pointer wrap-around, and data integrity. Resolved 2 CDC crossings using 2-FF synchronizers confirmed with formal verification.</p>
+        <div class="project-metrics">
+          <span class="metric">100 MHz</span>
+          <span class="metric">0 CDC Violations</span>
+          <span class="metric">TT/SS/FF Corners</span>
+        </div>
+        <a href="https://github.com/raaghavkanish-alt" target="_blank" class="project-link">View on GitHub</a>
+      </div>
+      <div class="project-card">
+        <div class="project-tech">Verilog · OpenROAD · Sky130</div>
+        <div class="project-title">I2C Master Controller</div>
+        <p class="project-desc">I2C master supporting standard (100 kHz) and fast (400 kHz) modes with START/STOP, ACK/NACK, and multi-byte transaction support. Verified with self-checking testbench covering all protocol edge cases.</p>
+        <div class="project-metrics">
+          <span class="metric">100 / 400 kHz</span>
+          <span class="metric">Full Protocol</span>
+          <span class="metric">RTL → GDSII</span>
+        </div>
+        <a href="https://github.com/raaghavkanish-alt" target="_blank" class="project-link">View on GitHub</a>
+      </div>
+      <div class="project-card">
+        <div class="project-tech">Verilog · Yosys · OpenROAD</div>
+        <div class="project-title">8-bit RISC-V Processor</div>
+        <p class="project-desc">8-bit RISC processor with fetch-decode-execute pipeline and custom 8-instruction ISA. Defined R/I/B-type instruction formats; validated with directed assembly test vectors. Full open-source PD flow from RTL to GDSII.</p>
+        <div class="project-metrics">
+          <span class="metric">Custom ISA</span>
+          <span class="metric">3-Stage Pipeline</span>
+          <span class="metric">Timing Closed</span>
+        </div>
+        <a href="https://github.com/raaghavkanish-alt" target="_blank" class="project-link">View on GitHub</a>
+      </div>
+      <div class="project-card">
+        <div class="project-tech">Verilog · Icarus · Verilator</div>
+        <div class="project-title">Gates & Combinational Library</div>
+        <p class="project-desc">RTL implementations of fundamental gate-level and combinational logic modules with comprehensive testbenches. Foundation block for hierarchical design exploration and timing characterization.</p>
+        <div class="project-metrics">
+          <span class="metric">Functional Verified</span>
+          <span class="metric">Sky130 Target</span>
+        </div>
+        <a href="https://github.com/raaghavkanish-alt/gatesverilog" target="_blank" class="project-link">github.com/raaghavkanish-alt/gatesverilog</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Physical Design Tab -->
+  <div class="tab-panel" id="tab-pd">
+    <div class="projects-grid">
+      <div class="project-card">
+        <div class="project-tech">Yosys · OpenROAD · Magic · Sky130</div>
+        <div class="project-title">8-bit RISC Processor — RTL to GDSII</div>
+        <p class="project-desc">Full open-source PD flow: Yosys synthesis → OpenROAD P&amp;R → Magic DRC/LVS → OpenSTA timing closure. Wrote SDC constraints and tuned synthesis flags to resolve critical-path violations.</p>
+        <div class="project-metrics">
+          <span class="metric">Clean DRC/LVS</span>
+          <span class="metric">Timing Closed</span>
+          <span class="metric">130nm</span>
+        </div>
+        <a href="https://github.com/raaghavkanish-alt/4bitalurtlgds2" target="_blank" class="project-link">github.com/raaghavkanish-alt/4bitalurtlgds2</a>
+      </div>
+      <div class="project-card">
+        <div class="project-tech">Yosys · OpenROAD · Magic · Netgen</div>
+        <div class="project-title">Async FIFO — Physical Implementation</div>
+        <p class="project-desc">Multi-corner timing analysis (TT/SS/FF) using OpenSTA; resolved setup violations via ECO buffer insertion. DRC/LVS sign-off with zero violations; floorplan tuned for balanced utilization at 100 MHz target.</p>
+        <div class="project-metrics">
+          <span class="metric">ECO Buffer Insertion</span>
+          <span class="metric">0 DRC/LVS Violations</span>
+          <span class="metric">100 MHz</span>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-tech">OpenLANE · OpenROAD · SkyWater 130nm</div>
+        <div class="project-title">SPI Design — RTL to GDS2 (Maven Silicon)</div>
+        <p class="project-desc">Production-ready full RTL-to-GDS2 flow: synthesis → P&amp;R → DRC/LVS → GDSII. Achieved timing closure and generated production-ready GDSII file during Physical Design internship.</p>
+        <div class="project-metrics">
+          <span class="metric">Production GDSII</span>
+          <span class="metric">Timing Closed</span>
+          <span class="metric">Clean Sign-off</span>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-tech">OpenROAD · Magic · Sky130</div>
+        <div class="project-title">I2C Master — Physical Implementation</div>
+        <p class="project-desc">Full open-source PD flow for I2C master controller on Sky130 130nm. Achieved timing closure and clean DRC/LVS sign-off with Magic and Netgen; verified protocol compliance at layout level.</p>
+        <div class="project-metrics">
+          <span class="metric">0 DRC Violations</span>
+          <span class="metric">130nm</span>
+          <span class="metric">LVS Clean</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Virtuoso / Cadence Tab -->
+  <div class="tab-panel" id="tab-virtuoso">
+    <div class="projects-grid">
+      <div class="project-card">
+        <div class="project-tech">Cadence Genus · Innovus · Virtuoso — Ongoing</div>
+        <div class="project-title">Turbo-Dadda Multiplier</div>
+        <p class="project-desc">Hybrid Booth-Dadda multiplier in Verilog for high-performance DSP. Synthesis and physical implementation in Cadence Suite for PPA analysis. Critical path optimization through Booth encoding, Dadda reduction, and CLA adders.</p>
+        <div class="project-metrics">
+          <span class="metric">~15–20% Speed Gain</span>
+          <span class="metric">~15% Lower Power</span>
+          <span class="metric">DSP-Optimized</span>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-tech">Cadence Virtuoso · Genus · Innovus</div>
+        <div class="project-title">PPA Benchmark Suite</div>
+        <p class="project-desc">Comparative PPA (Power, Performance, Area) analysis across standard cell implementations using Cadence commercial flow. Synthesis with Genus and placement with Innovus targeting multiple process corners.</p>
+        <div class="project-metrics">
+          <span class="metric">Multi-Corner</span>
+          <span class="metric">PPA Analysis</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- THESIS -->
+<section id="thesis">
+  <div class="section-header">
+    <span class="section-num">04</span>
+    <h2>Thesis (Ongoing)</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="thesis-card">
+    <div class="thesis-badge">● Active Research — VIT Chennai 2027</div>
+    <div class="thesis-title">Memory-Aware Dual-Precision MAC for Edge Neural Network Inference on RISC-V</div>
+    <ul class="exp-bullets">
+      <li>Designing a dual-precision (INT8/INT16) MAC unit for the RISC-V BOOM core with a custom instruction decoder; targeting pipelined execution of 1-cycle INT8 and 2-cycle INT16 operations.</li>
+      <li>Profiled 20+ TensorFlow Lite models (MobileNetV2, YOLOv3-Tiny, EfficientNet-Lite) — 3×3 convolutions comprise 55–70% of all operations, validating the dual-precision architecture decision.</li>
+      <li>Synthesizing initial RTL at 45nm while optimizing physical layout and execution pipelining for simultaneous PPA improvement.</li>
+    </ul>
+    <div class="thesis-grid">
+      <div class="thesis-metric">
+        <div class="thesis-metric-val">~35%</div>
+        <div class="thesis-metric-label">Energy Reduction Target</div>
+      </div>
+      <div class="thesis-metric">
+        <div class="thesis-metric-val">2×</div>
+        <div class="thesis-metric-label">Conv Speedup over ALU</div>
+      </div>
+      <div class="thesis-metric">
+        <div class="thesis-metric-val">45nm</div>
+        <div class="thesis-metric-label">Synthesis Node</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- EDUCATION -->
+<section id="education">
+  <div class="section-header">
+    <span class="section-num">05</span>
+    <h2>Education</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="edu-item">
+    <div class="exp-meta">
+      <div class="exp-date">2023 — 2027</div>
+      <div class="exp-company">Vellore Institute of Technology, Chennai</div>
+    </div>
+    <div>
+      <div class="exp-role">B.Tech — Electronics &amp; Communication Engineering</div>
+      <ul class="exp-bullets">
+        <li>CGPA: <strong style="color:var(--green)">8.27 / 10</strong> (through Semester 6)</li>
+        <li>Thesis: Memory-Aware Dual-Precision MAC for Edge Neural Network Inference on RISC-V</li>
+        <li>Specialization: VLSI Physical Design, Digital Systems, Embedded Systems</li>
+      </ul>
+    </div>
+  </div>
+  <div class="edu-item">
+    <div class="exp-meta">
+      <div class="exp-date">Class 12</div>
+      <div class="exp-company">Lalaji Memorial Omega International School, Chennai</div>
+    </div>
+    <div>
+      <div class="exp-role">Higher Secondary — Science</div>
+      <ul class="exp-bullets">
+        <li>Aggregate: <strong style="color:var(--green)">577 / 600</strong></li>
+        <li>School Topper — Chemistry (100/100) &amp; Biotechnology (97/100)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" style="padding:0;">
+<div id="contact" style="border-top:1px solid var(--border);background:var(--bg2);padding:100px 48px;">
+  <div style="max-width:1200px;margin:0 auto;">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <h2>Contact</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-info">
+        <h3>Let's build<br><span>silicon</span> together.</h3>
+        <p style="color:var(--text-dim);font-size:14px;max-width:400px;">Open to physical design roles, VLSI internships, and research collaborations. Comfortable across the full RTL-to-GDSII flow — both open-source and commercial.</p>
+        <div class="contact-links">
+          <a href="mailto:raaghavkanish@gmail.com" class="contact-link">
+            <div class="contact-link-icon">✉</div>
+            raaghavkanish@gmail.com
+          </a>
+          <a href="tel:+919019940040" class="contact-link">
+            <div class="contact-link-icon">☎</div>
+            +91 90199 40040
+          </a>
+          <a href="https://github.com/raaghavkanish-alt" target="_blank" class="contact-link">
+            <div class="contact-link-icon">⌥</div>
+            github.com/raaghavkanish-alt
+          </a>
+          <a href="https://www.linkedin.com/in/kanish-raaghav" target="_blank" class="contact-link">
+            <div class="contact-link-icon">in</div>
+            linkedin.com/in/kanish-raaghav
+          </a>
+          <div class="contact-link" style="cursor:default;">
+            <div class="contact-link-icon">📍</div>
+            Chennai, Tamil Nadu, India
+          </div>
+        </div>
+      </div>
+      <div class="flow-diagram">
+        <div class="flow-title">// Full RTL → GDSII Flow Expertise</div>
+        <div class="flow-steps">
+          <div class="flow-step"><div class="flow-step-dot"></div><div class="flow-step-name">RTL Design</div><div class="flow-step-tool">Verilog / HDL</div></div>
+          <div class="flow-arrow"></div>
+          <div class="flow-step"><div class="flow-step-dot"></div><div class="flow-step-name">Synthesis</div><div class="flow-step-tool">Yosys / Genus</div></div>
+          <div class="flow-arrow"></div>
+          <div class="flow-step"><div class="flow-step-dot"></div><div class="flow-step-name">Floorplan &amp; Power</div><div class="flow-step-tool">OpenROAD / Innovus</div></div>
+          <div class="flow-arrow"></div>
+          <div class="flow-step"><div class="flow-step-dot"></div><div class="flow-step-name">Placement &amp; CTS</div><div class="flow-step-tool">OpenROAD / Innovus</div></div>
+          <div class="flow-arrow"></div>
+          <div class="flow-step"><div class="flow-step-dot"></div><div class="flow-step-name">Routing</div><div class="flow-step-tool">OpenROAD / Qrouter</div></div>
+          <div class="flow-arrow"></div>
+          <div class="flow-step"><div class="flow-step-dot"></div><div class="flow-step-name">Post-Route STA</div><div class="flow-step-tool">OpenSTA</div></div>
+          <div class="flow-arrow"></div>
+          <div class="flow-step"><div class="flow-step-dot"></div><div class="flow-step-name">DRC / LVS Sign-off</div><div class="flow-step-tool">Magic / Netgen</div></div>
+          <div class="flow-arrow"></div>
+          <div class="flow-step"><div class="flow-step-dot" style="background:var(--amber)"></div><div class="flow-step-name" style="color:var(--amber)">GDSII ✓</div><div class="flow-step-tool">Production Ready</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<footer>
+  <p>Kanish Raaghav A — <span>Physical Design Engineer</span> — Chennai</p>
+  <p style="color:var(--border);">// RTL → GDSII</p>
+</footer>
+
+<script>
+// ── FLOORPLAN CANVAS ANIMATION ──
+const canvas = document.getElementById('floorplan-canvas');
+const ctx = canvas.getContext('2d');
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+const cells = [];
+const COLS = 40, ROWS = 24;
+
+function initCells() {
+  cells.length = 0;
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      if (Math.random() > 0.55) {
+        cells.push({
+          col: c, row: r,
+          w: Math.floor(Math.random() * 3) + 1,
+          h: Math.floor(Math.random() * 2) + 1,
+          opacity: Math.random() * 0.6 + 0.1,
+          speed: Math.random() * 0.005 + 0.001,
+          phase: Math.random() * Math.PI * 2
+        });
+      }
+    }
+  }
+}
+initCells();
+
+let t = 0;
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const cw = canvas.width / COLS;
+  const ch = canvas.height / ROWS;
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(0,229,160,0.15)';
+  ctx.lineWidth = 0.5;
+  for (let c = 0; c <= COLS; c++) {
+    ctx.beginPath();
+    ctx.moveTo(c * cw, 0);
+    ctx.lineTo(c * cw, canvas.height);
+    ctx.stroke();
+  }
+  for (let r = 0; r <= ROWS; r++) {
+    ctx.beginPath();
+    ctx.moveTo(0, r * ch);
+    ctx.lineTo(canvas.width, r * ch);
+    ctx.stroke();
+  }
+
+  // Cells
+  cells.forEach(cell => {
+    const pulse = Math.sin(t * cell.speed * 100 + cell.phase) * 0.3 + 0.7;
+    ctx.fillStyle = `rgba(0,229,160,${cell.opacity * pulse * 0.4})`;
+    ctx.fillRect(
+      cell.col * cw + 1,
+      cell.row * ch + 1,
+      Math.min(cell.w, COLS - cell.col) * cw - 2,
+      Math.min(cell.h, ROWS - cell.row) * ch - 2
+    );
+    ctx.strokeStyle = `rgba(0,229,160,${cell.opacity * pulse * 0.8})`;
+    ctx.lineWidth = 0.5;
+    ctx.strokeRect(
+      cell.col * cw + 1,
+      cell.row * ch + 1,
+      Math.min(cell.w, COLS - cell.col) * cw - 2,
+      Math.min(cell.h, ROWS - cell.row) * ch - 2
+    );
+  });
+
+  t++;
+  requestAnimationFrame(draw);
+}
+draw();
+
+// ── TABS ──
+function switchTab(e, id) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  e.target.classList.add('active');
+  document.getElementById('tab-' + id).classList.add('active');
+}
+</script>
+</body>
+</html>
